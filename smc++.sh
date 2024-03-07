@@ -1,0 +1,114 @@
+#!/bin/bash
+#SBATCH -D /work/users/t/v/tvkent/aedes/
+#SBATCH --time=18:00:00
+#SBATCH --mem=7G
+#SBATCH -J smc++
+#SBATCH --array=0-54
+#SBATCH -o /work/users/t/v/tvkent/aedes/logs/smc++boot-centsites-rp5-out-%A.%a.txt
+#SBATCH -e /work/users/t/v/tvkent/aedes/logs/smc++boot-centsites-rp5-error-%A.%a.txt
+#0-34
+set -e
+set -u
+
+workdir=/work/users/t/v/tvkent/aedes
+
+#pops=("Rio_Claro" "Cali" "Brazil" "Kenya" "Senegal" "Gabon" "USA")
+#pops=("NorCal" "SoCal" "Florida" "SoCalExeter" "FloridaExeter" "Exeter" "Clovis")
+#pops=("Rio_Claro" "Cali" "Brazil" "Kenya" "Senegal" "Gabon" "USA" "NorCal" "SoCal" "Florida" "Exeter" "Clovis")
+pops=("Rio_Claro" "Cali" "Brazil" "Kenya" "Gabon" "USA" "NorCal" "SoCal" "Florida" "Exeter" "Clovis")
+#chrs=("AaegL5_1" "AaegL5_2" "AaegL5_3")
+
+popid=$((SLURM_ARRAY_TASK_ID / 5))
+distind=$((SLURM_ARRAY_TASK_ID % 5))
+pop=${pops[popid]}
+#pop=${pops[SLURM_ARRAY_TASK_ID]}
+#pop="Rio_Claro"
+#echo $pop
+#echo $distind
+# randomly chosen 5 individuals to be distinguished for each pop
+if [[ "$pop" == "Rio_Claro" ]]; then
+	#echo 'yes'
+	distinguished=("FEMALE_3-F3_ATCCGGTA-TATCGGTC_S16" "MALE_5-M5_CATGGCTA-GATGTGTG_S27" "MALE_2-M2_TAACCGGT-GAGACGAT_S24" "FEMALE_10-F10_GTGCCATA-ACTAGGAG_S2" "FEMALE_14-F14_ACGTTCAG-GCACAACT_S6")
+	indivs=("RC:FEMALE_1-F1_CGCATGAT-TCAGGCTT_S1,FEMALE_10-F10_GTGCCATA-ACTAGGAG_S2,FEMALE_11-F11_CGTTGCAA-CGCTCTAT_S3,FEMALE_12-F12_TGAAGACG-TGGCATGT_S4,FEMALE_14-F14_ACGTTCAG-GCACAACT_S6,FEMALE_15-F15_ATGCACGA-GACGATCT_S7,FEMALE_17-F17_CGGCTAAT-AGAACGAG_S9,FEMALE_18-F18_GAATCCGA-CACTAGCT_S10,FEMALE_2-F2_CTTAGGAC-GTAGGAGT_S12,FEMALE_20-F20_GTTACGCA-ATCGCCAT_S13,FEMALE_21-F21_ATGACGTC-GAAGGAAG_S14,FEMALE_22-F22_CAGTCCAA-GATTACCG_S15,FEMALE_3-F3_ATCCGGTA-TATCGGTC_S16,FEMALE_5-F5_CATACCAC-CGGTTGTT_S18,FEMALE_6-F6_AACGTCTG-GCGTCATT_S19,FEMALE_7-F7_CCTGATTG-AACTGAGC_S20,FEMALE_8-F8_CCTTGTAG-TTCCAAGG_S21,FEMALE_9-F9_ACGGAACA-GTTCTCGT_S22,MALE_1-M1_CGACGTTA-ATCCAGAG_S23,MALE_2-M2_TAACCGGT-GAGACGAT_S24,MALE_3-M3_ATCGATCG-TGCTTCCA_S25,MALE_4-M4_TCGCTGTT-ACGACTTG_S26,MALE_5-M5_CATGGCTA-GATGTGTG_S27,MALE_6-M6_AGCGTGTT-TTGCGAAG_S28")
+elif [[ "$pop" == "Cali" ]]; then
+	distinguished=("JB_A2_25_S3" "JB_A2_50_S10" "JB_A2_34_S5" "JB_A2_36_S7" "JB_A2_19_S2")
+	indivs=("Cali:JB_A2_18_S1,JB_A2_19_S2,JB_A2_25_S3,JB_A2_29_S4,JB_A2_34_S5,JB_A2_35_S6,JB_A2_36_S7,JB_A2_39_S8,JB_A2_46_S9,JB_A2_50_S10")
+elif [[ "$pop" == "Brazil" ]]; then
+	distinguished=("SRR11006838" "SRR11006841" "SRR11006846" "SRR11006842" "SRR11006852")
+	indivs=("Brazil:SRR11006835,SRR11006836,SRR11006837,SRR11006838,SRR11006839,SRR11006840,SRR11006841,SRR11006842,SRR11006843,SRR11006846,SRR11006847,SRR11006848,SRR11006849,SRR11006850,SRR11006851,SRR11006852,SRR11006853,SRR11006854")
+elif [[ "$pop" == "Kenya" ]]; then
+	distinguished=("SRR11006669" "SRR11006683" "SRR11006672" "SRR11006674" "SRR11006675")
+	indivs=("Kenya:SRR11006665,SRR11006666,SRR11006667,SRR11006668,SRR11006669,SRR11006670,SRR11006672,SRR11006673,SRR11006674,SRR11006675,SRR11006676,SRR11006677,SRR11006678,SRR11006679,SRR11006680,SRR11006681,SRR11006683,SRR11006684,SRR11006685")
+elif [[ "$pop" == "Senegal" ]]; then
+	distinguished=("SRR11006755" "SRR11006770" "SRR11006763" "SRR11006753" "SRR11006766")
+	indivs=("Senegal:SRR11006749,SRR11006751,SRR11006752,SRR11006753,SRR11006754,SRR11006755,SRR11006756,SRR11006757,SRR11006758,SRR11006759,SRR11006760,SRR11006762,SRR11006763,SRR11006764,SRR11006765,SRR11006766,SRR11006767,SRR11006768,SRR11006769,SRR11006770")
+elif [[ "$pop" == "Gabon" ]]; then
+	distinguished=("SRR11006829" "SRR11006831" "SRR11006828" "SRR11006823" "SRR11006834")
+	indivs=("Gabon:SRR11006820,SRR11006821,SRR11006823,SRR11006824,SRR11006825,SRR11006826,SRR11006827,SRR11006828,SRR11006829,SRR11006830,SRR11006831,SRR11006832,SRR11006834")
+elif [[ "$pop" == "USA" ]]; then
+	distinguished=("SRR6768021" "SRR6768024" "SRR6768014" "SRR6768012" "SRR6768003")
+	indivs=("USA:SRR6768001,SRR6768002,SRR6768003,SRR6768004,SRR6768006,SRR6768007,SRR6768008,SRR6768009,SRR6768010,SRR6768011,SRR6768012,SRR6768013,SRR6768014,SRR6768015,SRR6768016,SRR6768017,SRR6768018,SRR6768019,SRR6768020,SRR6768021,SRR6768022,SRR6768023,SRR6768024,SRR6768025,SRR6768026,SRR6768027,SRR6768028")
+elif [[ "$pop" == "NorCal" ]]; then
+	distinguished=("SRR6768002" "SRR6768003" "SRR6768004" "SRR6768006" "SRR6768027")
+	indivs=("NorCal:SRR6768001,SRR6768002,SRR6768003,SRR6768004,SRR6768006,SRR6768027")
+elif [[ "$pop" == "SoCal" ]]; then
+	distinguished=("SRR6768011" "SRR6768012" "SRR6768014" "SRR6768015" "SRR6768018")
+	indivs=("SoCal:SRR6768010,SRR6768011,SRR6768012,SRR6768013,SRR6768014,SRR6768015,SRR6768016,SRR6768017,SRR6768018")
+elif [[ "$pop" == "Clovis" ]]; then
+	distinguished=("SRR6768020" "SRR6768021" "SRR6768022" "SRR6768023" "SRR6768028")
+	indivs=("Clovis:SRR6768019,SRR6768020,SRR6768021,SRR6768022,SRR6768023,SRR6768025,SRR6768026,SRR6768028")
+elif [[ "$pop" == "Florida" ]]; then
+	distinguished=("SRR6768007" "SRR6768008")
+	indivs=("Florida:SRR6768007,SRR6768008")
+elif [[ "$pop" == "Exeter" ]]; then
+        distinguished=("SRR6768009" "SRR6768024")
+        indivs=("Exeter:SRR6768009,SRR6768024")
+#elif [[ "$pop" == "SoCalExeter" ]]; then
+#	distinguished=("SRR6768009" "SRR6768024" "SRR6768010" "SRR6768011" "SRR6768015" "SRR6768017")
+#	indivs=("SoCalExeter:SRR6768009,SRR6768024,SRR6768010,SRR6768011,SRR6768012,SRR6768013,SRR6768014,SRR6768015,SRR6768016,SRR6768017,SRR6768018")
+#elif [[ "$pop" == "FloridaExeter" ]]; then
+#	distinguished=("SRR6768009" "SRR6768024" "SRR6768007" "SRR6768008")
+#	indivs=("FloridaExeter:SRR6768009,SRR6768024,SRR6768007,SRR6768008")
+else
+	echo "missing pop"
+fi
+
+
+module load singularity
+mkdir -p ./Data/smc++/${pop}_100k_sites/
+popdir=./Data/smc++/${pop}_100k_sites/
+
+
+#lazily run all 3 chromosomes in same job
+singularity exec --bind /work/users/t/v/tvkent/aedes/ ./smc++ smc++ vcf2smc ./Data/VCFs/AaegL5_full_filtered_snps_110122_rep_map_masked.vcf.gz -d ${distinguished[distind]} ${distinguished[distind]} -m ./Data/AaegL5_genes_100000_rep_map_centromere_filtered_sites_mask.bed.gz ${popdir}/AaegL5_1_${pop}_${distinguished[distind]}_5.smc.gz AaegL5_1 ${indivs}
+
+singularity exec --bind /work/users/t/v/tvkent/aedes/ ./smc++ smc++ vcf2smc ./Data/VCFs/AaegL5_full_filtered_snps_110122_rep_map_masked.vcf.gz -d ${distinguished[distind]} ${distinguished[distind]} -m ./Data/AaegL5_genes_100000_rep_map_centromere_filtered_sites_mask.bed.gz ${popdir}/AaegL5_2_${pop}_${distinguished[distind]}_5.smc.gz AaegL5_2 ${indivs}
+
+singularity exec --bind /work/users/t/v/tvkent/aedes/ ./smc++ smc++ vcf2smc ./Data/VCFs/AaegL5_full_filtered_snps_110122_rep_map_masked.vcf.gz -d ${distinguished[distind]} ${distinguished[distind]} -m ./Data/AaegL5_genes_100000_rep_map_centromere_filtered_sites_mask.bed.gz ${popdir}/AaegL5_3_${pop}_${distinguished[distind]}_5.smc.gz AaegL5_3 ${indivs}
+
+
+
+#NOTE: RUN BELOW SEPARATELY WITH FEWER CORES
+
+mkdir -p ./Results/smc++/${pop}_100k_sites_rp5/
+popdir=./Results/smc++/${pop}_100k_sites_rp5/
+
+
+#-w 10	
+singularity exec --bind /work/users/t/v/tvkent/aedes/ ./smc++ smc++ estimate -o ${popdir}/ 4.85e-9 ./Data/smc++/${pop}_100k_sites/*smc.gz --timepoints 1 800000 --knots 10 -w 10 -rp 5.0
+
+singularity exec --bind /work/users/t/v/tvkent/aedes/ ./smc++ smc++ plot ${popdir}/${pop}_100ksites_rp5_smc.png ${popdir}/model.final.json -g 0.067 -c
+
+
+
+#singularity pull smc++ docker://terhorst/smcpp:latest
+#singularity exec --bind /work/users/t/v/tvkent/aedes/ ./smc++ smc++ vcf2smc ./Data/VCFs/AaegL5_full_filtered_snps_110122_rep_map_masked.vcf.gz -d ${indivs[SLURM_ARRAY_TASK_ID]} ${indivs[SLURM_ARRAY_TASK_ID]} -m ./Data/AaegL5_full_invariant_variant_rep_map_depth_masked_fix_removemask.bed.gz ./Data/smc++/RC/AaegL5_1_RC_${indivs[SLURM_ARRAY_TASK_ID]}.smc.gz AaegL5_1 RC:FEMALE_1-F1_CGCATGAT-TCAGGCTT_S1,FEMALE_10-F10_GTGCCATA-ACTAGGAG_S2,FEMALE_11-F11_CGTTGCAA-CGCTCTAT_S3,FEMALE_12-F12_TGAAGACG-TGGCATGT_S4,FEMALE_14-F14_ACGTTCAG-GCACAACT_S6,FEMALE_15-F15_ATGCACGA-GACGATCT_S7,FEMALE_17-F17_CGGCTAAT-AGAACGAG_S9,FEMALE_18-F18_GAATCCGA-CACTAGCT_S10,FEMALE_2-F2_CTTAGGAC-GTAGGAGT_S12,FEMALE_20-F20_GTTACGCA-ATCGCCAT_S13,FEMALE_21-F21_ATGACGTC-GAAGGAAG_S14,FEMALE_22-F22_CAGTCCAA-GATTACCG_S15,FEMALE_3-F3_ATCCGGTA-TATCGGTC_S16,FEMALE_5-F5_CATACCAC-CGGTTGTT_S18,FEMALE_6-F6_AACGTCTG-GCGTCATT_S19,FEMALE_7-F7_CCTGATTG-AACTGAGC_S20,FEMALE_8-F8_CCTTGTAG-TTCCAAGG_S21,FEMALE_9-F9_ACGGAACA-GTTCTCGT_S22,MALE_1-M1_CGACGTTA-ATCCAGAG_S23,MALE_2-M2_TAACCGGT-GAGACGAT_S24,MALE_3-M3_ATCGATCG-TGCTTCCA_S25,MALE_4-M4_TCGCTGTT-ACGACTTG_S26,MALE_5-M5_CATGGCTA-GATGTGTG_S27,MALE_6-M6_AGCGTGTT-TTGCGAAG_S28
+
+
+#singularity exec --bind /work/users/t/v/tvkent/aedes/ ./smc++ smc++ vcf2smc ./Data/VCFs/AaegL5_full_filtered_snps_110122_rep_map_masked.vcf.gz -d ${indivs[SLURM_ARRAY_TASK_ID]} ${indivs[SLURM_ARRAY_TASK_ID]} -m ./Data/AaegL5_full_invariant_variant_rep_map_depth_masked_fix_removemask.bed.gz ./Data/smc++/RC/AaegL5_2_RC_${indivs[SLURM_ARRAY_TASK_ID]}.smc.gz AaegL5_2 RC:FEMALE_1-F1_CGCATGAT-TCAGGCTT_S1,FEMALE_10-F10_GTGCCATA-ACTAGGAG_S2,FEMALE_11-F11_CGTTGCAA-CGCTCTAT_S3,FEMALE_12-F12_TGAAGACG-TGGCATGT_S4,FEMALE_14-F14_ACGTTCAG-GCACAACT_S6,FEMALE_15-F15_ATGCACGA-GACGATCT_S7,FEMALE_17-F17_CGGCTAAT-AGAACGAG_S9,FEMALE_18-F18_GAATCCGA-CACTAGCT_S10,FEMALE_2-F2_CTTAGGAC-GTAGGAGT_S12,FEMALE_20-F20_GTTACGCA-ATCGCCAT_S13,FEMALE_21-F21_ATGACGTC-GAAGGAAG_S14,FEMALE_22-F22_CAGTCCAA-GATTACCG_S15,FEMALE_3-F3_ATCCGGTA-TATCGGTC_S16,FEMALE_5-F5_CATACCAC-CGGTTGTT_S18,FEMALE_6-F6_AACGTCTG-GCGTCATT_S19,FEMALE_7-F7_CCTGATTG-AACTGAGC_S20,FEMALE_8-F8_CCTTGTAG-TTCCAAGG_S21,FEMALE_9-F9_ACGGAACA-GTTCTCGT_S22,MALE_1-M1_CGACGTTA-ATCCAGAG_S23,MALE_2-M2_TAACCGGT-GAGACGAT_S24,MALE_3-M3_ATCGATCG-TGCTTCCA_S25,MALE_4-M4_TCGCTGTT-ACGACTTG_S26,MALE_5-M5_CATGGCTA-GATGTGTG_S27,MALE_6-M6_AGCGTGTT-TTGCGAAG_S28
+
+
+#singularity exec --bind /work/users/t/v/tvkent/aedes/ ./smc++ smc++ vcf2smc ./Data/VCFs/AaegL5_full_filtered_snps_110122_rep_map_masked.vcf.gz -d ${indivs[SLURM_ARRAY_TASK_ID]} ${indivs[SLURM_ARRAY_TASK_ID]} -m ./Data/AaegL5_full_invariant_variant_rep_map_depth_masked_fix_removemask.bed.gz ./Data/smc++/RC/AaegL5_3_RC_${indivs[SLURM_ARRAY_TASK_ID]}.smc.gz AaegL5_3 RC:FEMALE_1-F1_CGCATGAT-TCAGGCTT_S1,FEMALE_10-F10_GTGCCATA-ACTAGGAG_S2,FEMALE_11-F11_CGTTGCAA-CGCTCTAT_S3,FEMALE_12-F12_TGAAGACG-TGGCATGT_S4,FEMALE_14-F14_ACGTTCAG-GCACAACT_S6,FEMALE_15-F15_ATGCACGA-GACGATCT_S7,FEMALE_17-F17_CGGCTAAT-AGAACGAG_S9,FEMALE_18-F18_GAATCCGA-CACTAGCT_S10,FEMALE_2-F2_CTTAGGAC-GTAGGAGT_S12,FEMALE_20-F20_GTTACGCA-ATCGCCAT_S13,FEMALE_21-F21_ATGACGTC-GAAGGAAG_S14,FEMALE_22-F22_CAGTCCAA-GATTACCG_S15,FEMALE_3-F3_ATCCGGTA-TATCGGTC_S16,FEMALE_5-F5_CATACCAC-CGGTTGTT_S18,FEMALE_6-F6_AACGTCTG-GCGTCATT_S19,FEMALE_7-F7_CCTGATTG-AACTGAGC_S20,FEMALE_8-F8_CCTTGTAG-TTCCAAGG_S21,FEMALE_9-F9_ACGGAACA-GTTCTCGT_S22,MALE_1-M1_CGACGTTA-ATCCAGAG_S23,MALE_2-M2_TAACCGGT-GAGACGAT_S24,MALE_3-M3_ATCGATCG-TGCTTCCA_S25,MALE_4-M4_TCGCTGTT-ACGACTTG_S26,MALE_5-M5_CATGGCTA-GATGTGTG_S27,MALE_6-M6_AGCGTGTT-TTGCGAAG_S28
+
+#singularity exec --bind /work/users/t/v/tvkent/aedes/ ./smc++ smc++ estimate -o ./Results/smc++/RC/ 4.85e-9 ./Data/smc++/RC/* -w 10 --timepoints 1 800000 --knots 25 --cores ${SLURM_CPUS_PER_TASK}
+#singularity exec --bind /work/users/t/v/tvkent/aedes/ ./smc++ smc++ plot ./Results/smc++/RC/RC_smc.png ./Results/smc++/RC/model.final.json -g 0.067
